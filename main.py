@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi_login.exceptions import InvalidCredentialsException
 from pydantic import BaseModel
+from fake_db import fake_db, ADMIN_USERNAME
 
 class User(BaseModel):
     username:str
@@ -24,11 +25,6 @@ def cookie_to_user(cookie: str) -> str:
     cookie_result = base64.b64decode(cookie)
     return cookie_result
 
-fake_db ={
-    'admin':{'password':'admin','staff':True},
-    'rohan':{'password':'rohan1','staff':False},
-    'ganesh':{'password':'ganesh1213', 'staff':False}
-}
 
 @app.post('/login')
 async def login(response:Response,data:OAuth2PasswordRequestForm = Depends()):
@@ -38,7 +34,7 @@ async def login(response:Response,data:OAuth2PasswordRequestForm = Depends()):
     if username in fake_db.keys():
         if password == fake_db[username]['password']:
             staff=False
-            if username == "admin":staff=True
+            if username == ADMIN_USERNAME:staff=True
             value = user_to_cookie(username, staff)
             response.set_cookie(key='cookie',value=value)
             return "Login Sucessfull"
@@ -57,8 +53,4 @@ async def get_items(
 @app.get("/get-cookie")
 def get_cookie(cookie: str = Cookie(None)):
     return {"mycookie": cookie}
-
-# @app.get('/current_user')
-# def get_current_user(cookie: str = Cookie(None)):
-    # 
    

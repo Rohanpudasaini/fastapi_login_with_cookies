@@ -1,3 +1,4 @@
 *__pycache__/
 .env
 fake_db.py
+*copy*
